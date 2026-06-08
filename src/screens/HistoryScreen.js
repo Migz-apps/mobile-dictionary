@@ -5,15 +5,14 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Platform,
+  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../utils/theme';
 import { useDictionaryContext } from '../context/DictionaryContext';
 import HistoryItem from '../components/HistoryItem';
 
-export default function HistoryScreen() {
-  const navigation = useNavigation();
+export default function HistoryScreen({ navigation }) {
   const { searchHistory, searchWord, clearHistory } = useDictionaryContext();
 
   const handleItemPress = useCallback(
@@ -33,7 +32,7 @@ export default function HistoryScreen() {
   }, [clearHistory]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
+    <View style={styles.safe}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -76,7 +75,7 @@ export default function HistoryScreen() {
           ))
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.surface,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
   },
   header: {
     flexDirection: 'row',

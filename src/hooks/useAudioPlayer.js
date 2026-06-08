@@ -135,9 +135,9 @@ export function useAudioPlayer() {
 
   useEffect(() => {
     return () => {
-      stopAudio();
+      unloadSound();
     };
-  }, [stopAudio]);
+  }, [unloadSound]);
 
   return {
     playAudio,

@@ -1,14 +1,10 @@
 import React from 'react';
-import { ScrollView, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { ScrollView, View, TouchableOpacity, Text, StyleSheet, Platform, StatusBar } from 'react-native';
 import { colors, typography } from '../utils/theme';
 import WordHeader from '../components/WordHeader';
 import MeaningCard from '../components/MeaningCard';
 
-export default function WordDetailScreen() {
-  const navigation = useNavigation();
-  const route = useRoute();
+export default function WordDetailScreen({ navigation, route }) {
   const { wordData } = route.params;
 
   if (!wordData) {
@@ -16,7 +12,7 @@ export default function WordDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+    <View style={styles.safe}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -44,7 +40,7 @@ export default function WordDetailScreen() {
           />
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -52,6 +48,7 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
   },
   header: {
     flexDirection: 'row',

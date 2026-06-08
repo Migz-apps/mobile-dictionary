@@ -7,11 +7,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { safeHaptic } from '../utils/haptics';
-import * as Haptics from 'expo-haptics';
 import { colors, typography } from '../utils/theme';
 import { useDictionaryContext } from '../context/DictionaryContext';
 import SearchBar from '../components/SearchBar';
@@ -19,14 +16,12 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
 
-export default function SearchScreen() {
-  const navigation = useNavigation();
+export default function SearchScreen({ navigation }) {
   const { loading, error, searchWord, searchHistory, lastSearchedWord } =
     useDictionaryContext();
 
   const handleSearch = useCallback(
     async (word) => {
-      await safeHaptic(Haptics.ImpactFeedbackStyle.Medium);
       const result = await searchWord(word);
       if (result) {
         navigation.navigate('WordDetail', { wordData: result });
@@ -44,7 +39,7 @@ export default function SearchScreen() {
   const recentSearches = searchHistory.slice(0, 5);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+    <View style={styles.safe}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -97,7 +92,7 @@ export default function SearchScreen() {
           {!loading && !error && <EmptyState />}
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -105,6 +100,7 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
   },
   flex: {
     flex: 1,
