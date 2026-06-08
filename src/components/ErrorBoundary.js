@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { colors, typography, radii } from '../utils/theme';
 
 export default class ErrorBoundary extends React.Component {
@@ -13,7 +13,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('App crash:', error, info);
+    console.error('App crash:', error?.message, info?.componentStack);
   }
 
   handleReset = () => {
@@ -26,9 +26,11 @@ export default class ErrorBoundary extends React.Component {
         <View style={styles.container}>
           <Text style={styles.icon}>⚠️</Text>
           <Text style={styles.title}>Something went wrong</Text>
-          <Text style={styles.message}>
-            {this.state.error?.message || 'An unexpected error occurred.'}
-          </Text>
+          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+            <Text style={styles.message}>
+              {this.state.error?.message || 'An unexpected error occurred.'}
+            </Text>
+          </ScrollView>
           <TouchableOpacity style={styles.button} onPress={this.handleReset}>
             <Text style={styles.buttonText}>Try Again</Text>
           </TouchableOpacity>
@@ -48,6 +50,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
+  scroll: {
+    maxHeight: 120,
+    width: '100%',
+  },
+  scrollContent: {
+    paddingHorizontal: 8,
+  },
   icon: {
     fontSize: 48,
     marginBottom: 16,
@@ -60,11 +69,11 @@ const styles = StyleSheet.create({
     ...typography.title,
   },
   message: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
-    ...typography.body,
+    fontFamily: 'monospace',
   },
   button: {
     backgroundColor: colors.primary,

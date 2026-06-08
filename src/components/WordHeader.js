@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
   },
   pronunciationList: {
     marginTop: 16,
-    gap: 10,
   },
   pronunciationRow: {
     flexDirection: 'row',
@@ -112,6 +111,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
+    marginBottom: 10,
   },
   phoneticInfo: {
     flex: 1,

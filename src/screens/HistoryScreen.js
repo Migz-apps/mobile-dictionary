@@ -1,27 +1,28 @@
 import React, { useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../utils/theme';
 import { useDictionaryContext } from '../context/DictionaryContext';
 import HistoryItem from '../components/HistoryItem';
 
-export default function HistoryDrawer(props) {
+export default function HistoryScreen() {
   const navigation = useNavigation();
   const { searchHistory, searchWord, clearHistory } = useDictionaryContext();
 
   const handleItemPress = useCallback(
     async (word) => {
       const result = await searchWord(word);
-      navigation.closeDrawer();
       if (result) {
-        navigation.navigate('Main', {
-          screen: 'WordDetail',
-          params: { wordData: result },
-        });
+        navigation.navigate('WordDetail', { wordData: result });
       } else {
-        navigation.navigate('Main', { screen: 'Search' });
+        navigation.navigate('Search');
       }
     },
     [searchWord, navigation]
@@ -33,11 +34,19 @@ export default function HistoryDrawer(props) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
-      <DrawerContentScrollView
-        {...props}
-        contentContainerStyle={styles.scrollContent}
-        style={styles.drawer}
-      >
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.backIcon}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>History</Text>
+        <View style={styles.backButton} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.branding}>
           <Text style={styles.logo}>📚</Text>
           <Text style={styles.appName}>LexiDict</Text>
@@ -58,17 +67,15 @@ export default function HistoryDrawer(props) {
             No search history yet. Look up a word to get started!
           </Text>
         ) : (
-          <View>
-            {searchHistory.map((item, index) => (
-              <HistoryItem
-                key={`${item}-${index}`}
-                word={item}
-                onPress={handleItemPress}
-              />
-            ))}
-          </View>
+          searchHistory.map((item, index) => (
+            <HistoryItem
+              key={`${item}-${index}`}
+              word={item}
+              onPress={handleItemPress}
+            />
+          ))
         )}
-      </DrawerContentScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -78,11 +85,34 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surface,
   },
-  drawer: {
-    backgroundColor: colors.surface,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backIcon: {
+    fontSize: 32,
+    color: colors.primary,
+    fontWeight: '300',
+  },
+  headerTitle: {
+    color: colors.textSecondary,
+    ...typography.sectionHeader,
+    fontSize: 12,
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 24,
   },
   branding: {
     paddingHorizontal: 20,

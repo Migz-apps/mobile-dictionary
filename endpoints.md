@@ -16,15 +16,14 @@ Document the key fields used from the API response:
 |--------|------|-------------|
 | Search Screen | /src/screens/SearchScreen.js | Main entry point. Search input, recent chips, empty/error/loading states |
 | Word Detail Screen | /src/screens/WordDetailScreen.js | Full word info: header, phonetics, audio, meanings, definitions, examples |
-| History Drawer | /src/screens/HistoryDrawer.js | Side drawer with persistent search history list |
+| History Screen | /src/screens/HistoryScreen.js | Search history list (opened from menu on Search screen) |
 
 ## Navigation Structure
 Document the navigator hierarchy:
-- DrawerNavigator (root)
-  - HistoryDrawer (drawer content)
-  - StackNavigator
-    - SearchScreen (initial route)
-    - WordDetailScreen
+- StackNavigator (root)
+  - SearchScreen (initial route)
+  - WordDetailScreen
+  - HistoryScreen
 
 ## Local Storage Keys
 | Key | Type | Description |

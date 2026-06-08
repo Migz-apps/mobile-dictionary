@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../utils/theme';
+import { safeHaptic } from '../utils/haptics';
 import { PLAYBACK_STATE } from '../hooks/useAudioPlayer';
 
 export default function PronunciationButton({
@@ -47,7 +48,7 @@ export default function PronunciationButton({
   }, [isPlaying, pulseAnim]);
 
   const handlePress = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await safeHaptic(Haptics.ImpactFeedbackStyle.Light);
     onPress(url);
   };
 

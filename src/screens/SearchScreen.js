@@ -9,8 +9,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 import { useNavigation } from '@react-navigation/native';
+import { safeHaptic } from '../utils/haptics';
+import * as Haptics from 'expo-haptics';
 import { colors, typography } from '../utils/theme';
 import { useDictionaryContext } from '../context/DictionaryContext';
 import SearchBar from '../components/SearchBar';
@@ -25,7 +26,7 @@ export default function SearchScreen() {
 
   const handleSearch = useCallback(
     async (word) => {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await safeHaptic(Haptics.ImpactFeedbackStyle.Medium);
       const result = await searchWord(word);
       if (result) {
         navigation.navigate('WordDetail', { wordData: result });
@@ -50,7 +51,7 @@ export default function SearchScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => navigation.openDrawer()}
+            onPress={() => navigation.navigate('History')}
             style={styles.menuButton}
             activeOpacity={0.7}
           >
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     paddingRight: 24,
-    gap: 8,
+    flexDirection: 'row',
   },
   chip: {
     backgroundColor: colors.surface,

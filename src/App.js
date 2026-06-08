@@ -1,41 +1,46 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors } from './utils/theme';
 import { DictionaryProvider } from './context/DictionaryContext';
 import AppNavigator from './navigation/AppNavigator';
 import ErrorBoundary from './components/ErrorBoundary';
 
+function RootNavigator() {
+  return (
+    <NavigationContainer
+      theme={{
+        ...DarkTheme,
+        colors: {
+          ...DarkTheme.colors,
+          primary: colors.primary,
+          background: colors.background,
+          card: colors.surface,
+          text: colors.textPrimary,
+          border: colors.border,
+          notification: colors.primary,
+        },
+      }}
+    >
+      <StatusBar style="light" />
+      <AppNavigator />
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <View style={styles.root}>
       <ErrorBoundary>
-      <SafeAreaProvider>
-        <DictionaryProvider>
-          <NavigationContainer
-            theme={{
-              ...DarkTheme,
-              colors: {
-                ...DarkTheme.colors,
-                primary: colors.primary,
-                background: colors.background,
-                card: colors.surface,
-                text: colors.textPrimary,
-                border: colors.border,
-                notification: colors.primary,
-              },
-            }}
-          >
-            <StatusBar style="light" />
-            <AppNavigator />
-          </NavigationContainer>
-        </DictionaryProvider>
-      </SafeAreaProvider>
+        <SafeAreaProvider>
+          <DictionaryProvider>
+            <RootNavigator />
+          </DictionaryProvider>
+        </SafeAreaProvider>
       </ErrorBoundary>
-    </GestureHandlerRootView>
+    </View>
   );
 }
 
