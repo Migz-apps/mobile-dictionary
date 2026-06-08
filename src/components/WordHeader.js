@@ -21,7 +21,7 @@ export default function WordHeader({ word, phonetics }) {
     [pronunciations, phonetics]
   );
 
-  const hasAudio = pronunciations.length > 0;
+  const primaryAudioUrl = pronunciations[0]?.url || null;
   const hasMultiple = pronunciations.length > 1;
 
   const handleToggle = (url) => {
@@ -32,14 +32,12 @@ export default function WordHeader({ word, phonetics }) {
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Text style={styles.word}>{word}</Text>
-        {hasAudio && !hasMultiple && (
-          <PronunciationButton
-            url={pronunciations[0].url}
-            playbackState={playbackState}
-            currentUrl={currentUrl}
-            onPress={handleToggle}
-          />
-        )}
+        <PronunciationButton
+          url={primaryAudioUrl}
+          playbackState={playbackState}
+          currentUrl={currentUrl}
+          onPress={handleToggle}
+        />
       </View>
 
       {hasMultiple ? (

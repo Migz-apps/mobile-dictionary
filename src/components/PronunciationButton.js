@@ -18,7 +18,8 @@ export default function PronunciationButton({
   size = 44,
 }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const isActive = currentUrl === url;
+  const hasAudio = Boolean(url);
+  const isActive = hasAudio && currentUrl === url;
   const isPlaying = isActive && playbackState === PLAYBACK_STATE.PLAYING;
   const isPaused = isActive && playbackState === PLAYBACK_STATE.PAUSED;
   const isLoading = isActive && playbackState === PLAYBACK_STATE.LOADING;
@@ -46,6 +47,7 @@ export default function PronunciationButton({
   }, [isPlaying, pulseAnim]);
 
   const handlePress = () => {
+    if (!hasAudio) return;
     onPress(url);
   };
 
@@ -75,12 +77,15 @@ export default function PronunciationButton({
             borderRadius: size / 2,
           },
           isPaused && styles.buttonPaused,
+          !hasAudio && styles.buttonDisabled,
         ]}
         onPress={handlePress}
-        activeOpacity={0.8}
-        disabled={isLoading}
+        activeOpacity={hasAudio ? 0.8 : 1}
+        disabled={!hasAudio || isLoading}
         accessibilityLabel={
-          isPlaying
+          !hasAudio
+            ? 'Pronunciation unavailable'
+            : isPlaying
             ? 'Pause pronunciation'
             : isPaused
               ? 'Resume pronunciation'
@@ -115,6 +120,10 @@ const styles = StyleSheet.create({
   },
   buttonPaused: {
     backgroundColor: colors.secondary,
+  },
+  buttonDisabled: {
+    backgroundColor: colors.border,
+    opacity: 0.65,
   },
   icon: {
     fontSize: 18,

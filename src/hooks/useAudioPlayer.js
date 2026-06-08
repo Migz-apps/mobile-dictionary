@@ -12,6 +12,7 @@ export function useAudioPlayer() {
   const [currentUrl, setCurrentUrl] = useState(null);
   const [error, setError] = useState(null);
   const soundRef = useRef(null);
+  const mountedRef = useRef(true);
 
   const isPlaying = playbackState === PLAYBACK_STATE.PLAYING;
   const isPaused = playbackState === PLAYBACK_STATE.PAUSED;
@@ -19,12 +20,13 @@ export function useAudioPlayer() {
 
   const unloadSound = useCallback(async () => {
     if (soundRef.current) {
+      const sound = soundRef.current;
+      soundRef.current = null;
       try {
-        await soundRef.current.unloadAsync();
+        await sound.unloadAsync();
       } catch (e) {
         console.warn('Failed to unload sound:', e);
       }
-      soundRef.current = null;
     }
   }, []);
 
@@ -40,15 +42,19 @@ export function useAudioPlayer() {
       }
     }
     await unloadSound();
-    setCurrentUrl(null);
-    setPlaybackState(PLAYBACK_STATE.IDLE);
+    if (mountedRef.current) {
+      setCurrentUrl(null);
+      setPlaybackState(PLAYBACK_STATE.IDLE);
+    }
   }, [unloadSound]);
 
   const pauseAudio = useCallback(async () => {
     if (!soundRef.current || playbackState !== PLAYBACK_STATE.PLAYING) return;
     try {
       await soundRef.current.pauseAsync();
-      setPlaybackState(PLAYBACK_STATE.PAUSED);
+      if (mountedRef.current) {
+        setPlaybackState(PLAYBACK_STATE.PAUSED);
+      }
     } catch (e) {
       console.warn('Failed to pause sound:', e);
     }
@@ -59,6 +65,8 @@ export function useAudioPlayer() {
       if (!url) return;
 
       try {
+        if (!mountedRef.current) return;
+
         setError(null);
 
         if (
@@ -67,15 +75,19 @@ export function useAudioPlayer() {
           soundRef.current
         ) {
           await soundRef.current.playAsync();
-          setPlaybackState(PLAYBACK_STATE.PLAYING);
+          if (mountedRef.current) {
+            setPlaybackState(PLAYBACK_STATE.PLAYING);
+          }
           return;
         }
 
         await stopAudio();
+        if (!mountedRef.current) return;
+
         setPlaybackState(PLAYBACK_STATE.LOADING);
         setCurrentUrl(url);
 
-        const { Audio } = await import('expo-av');
+        const { Audio } = require('expo-av');
 
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
@@ -87,11 +99,16 @@ export function useAudioPlayer() {
           { shouldPlay: true }
         );
 
+        if (!mountedRef.current) {
+          await sound.unloadAsync();
+          return;
+        }
+
         soundRef.current = sound;
         setPlaybackState(PLAYBACK_STATE.PLAYING);
 
         sound.setOnPlaybackStatusUpdate((status) => {
-          if (!status.isLoaded) return;
+          if (!mountedRef.current || !status.isLoaded) return;
 
           if (status.didJustFinish) {
             setPlaybackState(PLAYBACK_STATE.IDLE);
@@ -105,9 +122,11 @@ export function useAudioPlayer() {
         });
       } catch (e) {
         console.warn('Audio playback error:', e);
-        setError('Unable to play pronunciation audio.');
-        setPlaybackState(PLAYBACK_STATE.IDLE);
-        setCurrentUrl(null);
+        if (mountedRef.current) {
+          setError('Unable to play pronunciation audio.');
+          setPlaybackState(PLAYBACK_STATE.IDLE);
+          setCurrentUrl(null);
+        }
         await unloadSound();
       }
     },
@@ -135,6 +154,7 @@ export function useAudioPlayer() {
 
   useEffect(() => {
     return () => {
+      mountedRef.current = false;
       unloadSound();
     };
   }, [unloadSound]);
